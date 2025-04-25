@@ -45,15 +45,8 @@ export const authSession = pgTable("auth_session", {
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => authUser.id, { onDelete: "cascade" }),
 });
-
-export const authSessionRelations = relations(authSession, ({ one }) => ({
-  user: one(users, {
-    fields: [authSession.userId],
-    references: [users.id],
-  }),
-}));
 
 export const authAccount = pgTable("auth_account", {
   id: text("id").primaryKey(),
@@ -61,7 +54,7 @@ export const authAccount = pgTable("auth_account", {
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => authUser.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -73,14 +66,7 @@ export const authAccount = pgTable("auth_account", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const authAccountRelations = relations(authAccount, ({ one }) => ({
-  user: one(users, {
-    fields: [authAccount.userId],
-    references: [users.id],
-  }),
-}));
-
-export const authVerification = pgTable("auth_verification", {
+export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
