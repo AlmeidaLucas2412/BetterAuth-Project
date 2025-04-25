@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -16,6 +17,13 @@ export const authUser = pgTable("auth_user", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
+export const authUserRelations = relations(authUser, ({ one }) => ({
+  user: one(users, {
+    fields: [authUser.id],
+    references: [users.id],
+  }),
+}));
+
 export const authSession = pgTable("auth_session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
@@ -28,6 +36,13 @@ export const authSession = pgTable("auth_session", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 });
+
+export const authSessionRelations = relations(authSession, ({ one }) => ({
+  user: one(users, {
+    fields: [authSession.userId],
+    references: [users.id],
+  }),
+}));
 
 export const authAccount = pgTable("auth_account", {
   id: text("id").primaryKey(),
@@ -46,6 +61,13 @@ export const authAccount = pgTable("auth_account", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const authAccountRelations = relations(authAccount, ({ one }) => ({
+  user: one(users, {
+    fields: [authAccount.userId],
+    references: [users.id],
+  }),
+}));
 
 export const authVerification = pgTable("auth_verification", {
   id: text("id").primaryKey(),

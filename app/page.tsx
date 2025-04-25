@@ -1,3 +1,9 @@
+import { SignCard } from "./sign-card";
+
 export default function Home() {
-  return <h1>Hello World!</h1>;
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background">
+      <SignCard />
+    </main>
+  );
 }
