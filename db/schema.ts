@@ -5,7 +5,18 @@ export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
+
+  authUserId: text("auth_user_id")
+    .notNull()
+    .references(() => authUser.id, { onDelete: "cascade" }),
 });
+
+export const userRelations = relations(users, ({ one }) => ({
+  authUser: one(authUser, {
+    fields: [users.id],
+    references: [authUser.id],
+  }),
+}));
 
 export const authUser = pgTable("auth_user", {
   id: text("id").primaryKey(),
