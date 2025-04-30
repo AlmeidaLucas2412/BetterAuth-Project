@@ -11,9 +11,12 @@ export const users = pgTable("users", {
     .references(() => authUser.id, { onDelete: "cascade" }),
 });
 
+export type InsertUser = typeof users.$inferInsert;
+export type SelectUser = typeof users.$inferSelect;
+
 export const userRelations = relations(users, ({ one }) => ({
   authUser: one(authUser, {
-    fields: [users.id],
+    fields: [users.authUserId],
     references: [authUser.id],
   }),
 }));
