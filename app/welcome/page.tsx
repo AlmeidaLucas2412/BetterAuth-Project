@@ -1,3 +1,4 @@
+import { ClientForm } from "@/components/client-form";
 import { Header } from "@/components/header";
 import { UserForm } from "@/components/user-form";
 import { auth } from "@/lib/auth";
@@ -17,6 +18,9 @@ export default async function WelcomePage() {
           <h1>Bem vindo, {session?.user.username}!</h1>
         )}
       </main>
+      <div className="p-6">
+        <ClientForm userId={session?.user.id || ""} />
+      </div>
     </>
   );
 }
