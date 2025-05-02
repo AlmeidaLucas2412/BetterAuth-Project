@@ -1,3 +1,4 @@
+import { Header } from "@/components/header";
 import { UserForm } from "@/components/user-form";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -7,12 +8,15 @@ export default async function WelcomePage() {
   const isFirstAccess = !session?.user.username;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      {isFirstAccess ? (
-        <UserForm />
-      ) : (
-        <h1>Bem vindo, {session?.user.username}!</h1>
-      )}
-    </main>
+    <>
+      <Header />
+      <main className="flex flex-col items-center">
+        {isFirstAccess ? (
+          <UserForm />
+        ) : (
+          <h1>Bem vindo, {session?.user.username}!</h1>
+        )}
+      </main>
+    </>
   );
 }
