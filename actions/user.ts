@@ -1,16 +1,28 @@
+"use server";
+
 import { upsertUser } from "@/db/queries";
 import { InsertUser } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const saveUser = async (data: InsertUser) => {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const authUserId = session?.user.id || "";
+
   const userData: InsertUser = {
-    id: data.id,
+    id: authUserId,
     name: data.name,
+    username: data.username,
     email: data.email,
-    authUserId: data.authUserId,
+    authUserId: authUserId,
   };
 
   try {
     await upsertUser(userData);
+    await auth.api.updateUser({
+      body: { username: data.username },
+      headers: await headers(),
+    });
   } catch (error) {
     console.error(error);
   }
