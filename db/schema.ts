@@ -5,6 +5,7 @@ export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
+  username: text("username").notNull().unique(),
 
   authUserId: text("auth_user_id")
     .notNull()
@@ -14,10 +15,27 @@ export const users = pgTable("users", {
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
 
-export const userRelations = relations(users, ({ one }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
   authUser: one(authUser, {
     fields: [users.authUserId],
     references: [authUser.id],
+  }),
+  clients: many(clients),
+}));
+
+export const clients = pgTable("clients", {
+  email: text("email").notNull().primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+});
+
+export const clientsRelations = relations(clients, ({ one }) => ({
+  user: one(users, {
+    fields: [clients.userId],
+    references: [users.id],
   }),
 }));
 
@@ -27,6 +45,7 @@ export const authUser = pgTable("auth_user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull(),
   image: text("image"),
+  username: text("username").notNull().unique(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
