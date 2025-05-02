@@ -1,3 +1,5 @@
+"use server";
+
 import { getClientsByUserId, upsertClient } from "@/db/queries";
 import { InsertClient, SelectClient } from "@/db/schema";
 import { auth } from "@/lib/auth";
