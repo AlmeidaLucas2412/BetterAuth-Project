@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Github, Loader } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
+import { customSignIn } from "@/lib/auth-client";
 import { useState } from "react";
 
 export const SignCard = () => {
@@ -10,7 +10,7 @@ export const SignCard = () => {
   const handleSign = async () => {
     try {
       setIsLoading(true);
-      await signIn();
+      await customSignIn();
     } catch (error) {
       console.error(error);
     } finally {

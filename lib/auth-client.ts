@@ -3,13 +3,12 @@ const authClient = createAuthClient({
   baseURL: "http://localhost:3000",
 });
 
-export const signIn = async () => {
-  await authClient.signIn.social({
+const { signIn, signOut, getSession } = authClient;
+
+const customSignIn = () =>
+  signIn.social({
     provider: "github",
     callbackURL: "/welcome",
   });
-};
 
-export const signOut = async () => {
-  await authClient.signOut();
-};
+export { signIn, signOut, getSession, customSignIn };
