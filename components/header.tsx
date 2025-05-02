@@ -10,14 +10,14 @@ import { useRouter } from "next/navigation";
 export const Header = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [name, setName] = useState("");
 
   useEffect(() => {
     getSession().then((res) => {
-      if (!res) return;
-      setImageUrl(res.data?.user.image || "");
-      setName(res.data?.user.name || "");
+      if (!res || !res.data) return;
+      setImageUrl(res.data.user.image || "");
+      setName(res.data.user.name || "");
     });
   }, []);
 
