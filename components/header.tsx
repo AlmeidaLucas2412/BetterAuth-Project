@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { getSession, signOut } from "@/lib/auth-client";
@@ -6,12 +5,15 @@ import { Button } from "./ui/button";
 import { Loader, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export const Header = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [name, setName] = useState("");
+
+  const AVATAR_FALLBACK = name.charAt(0).toUpperCase();
 
   useEffect(() => {
     getSession().then((res) => {
@@ -35,13 +37,14 @@ export const Header = () => {
   return (
     <header className="flex justify-between bg-transparent p-4 items-center">
       <div className="flex items-center gap-x-2 p-2 rounded-md hover:bg-foreground hover:text-background">
-        <div className="flex size-10">
-          <img
-            src={imageUrl}
-            alt="Profile Picture"
-            className="object-cover rounded-full"
-          />
-        </div>
+        <Avatar className="size-10">
+          <AvatarImage src={imageUrl || ""} alt="Profile picture" />
+          <AvatarFallback>
+            <span className="font-semibold text-gray-600">
+              {AVATAR_FALLBACK}
+            </span>
+          </AvatarFallback>
+        </Avatar>
         <span className="font-semibold text-nowrap">{name}</span>
       </div>
       <Button
