@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/client";
 const authClient = createAuthClient({
-  baseURL: "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000",
 });
 
 const { signIn, signOut, getSession } = authClient;
