@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   userId: string;
@@ -25,13 +26,27 @@ export const ClientForm = ({ userId }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: saveClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      setIsOpen(false);
+      setData({ name: "", email: "", phone: "" });
+    },
+  });
 
-    await saveClient({ ...data, userId }).finally(() => {
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true);
+      console.log("Submitting", data);
+      mutation.mutate({ ...data, userId });
+      console.log("Submitted", data);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsLoading(false);
-      location.reload();
-    });
+    }
   };
 
   return (
@@ -76,7 +91,7 @@ export const ClientForm = ({ userId }: Props) => {
       </Dialog>
       <Button
         onClick={() => setIsOpen(true)}
-        className="uppercase font-semibold flex gap-x-1"
+        className="uppercase font-semibold flex gap-x-1 self-start"
       >
         Adicionar Cliente
         <Plus />
