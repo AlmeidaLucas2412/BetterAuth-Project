@@ -24,15 +24,27 @@ export function useClients(page = 1, pageSize = 10, name?: string) {
   const queryClient = useQueryClient();
   const queryKey = clientKeys.list({ page, pageSize, name });
 
-  // Prefetch adjacent pages
+  // Enhanced prefetching for better URL-based pagination support
   const prefetchAdjacentPages = () => {
-    // Only prefetch next page if we're not searching
-    if (!name && page > 0) {
-      const nextPage = page + 1;
-      queryClient.prefetchQuery({
-        queryKey: clientKeys.list({ page: nextPage, pageSize, name }),
-        queryFn: () => listClients(nextPage, pageSize, name),
-      });
+    // Only prefetch if we're not searching
+    if (!name) {
+      // Prefetch next page
+      if (page > 0) {
+        const nextPage = page + 1;
+        queryClient.prefetchQuery({
+          queryKey: clientKeys.list({ page: nextPage, pageSize, name }),
+          queryFn: () => listClients(nextPage, pageSize, name),
+        });
+      }
+
+      // Also prefetch previous page for better back navigation
+      if (page > 1) {
+        const prevPage = page - 1;
+        queryClient.prefetchQuery({
+          queryKey: clientKeys.list({ page: prevPage, pageSize, name }),
+          queryFn: () => listClients(prevPage, pageSize, name),
+        });
+      }
     }
   };
 
@@ -44,6 +56,7 @@ export function useClients(page = 1, pageSize = 10, name?: string) {
     },
     placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60 * 2, // 2 minutes
+    keepPreviousData: true, // Keep previous data while loading new page
   });
 
   // Call prefetchAdjacentPages when query is successful
@@ -63,17 +76,19 @@ export function useOptimisticClientMutation() {
 
   return useMutation({
     mutationFn: async ({ data }: { data: InsertClient }) => {
-      // This calls the server action to save the client
       return saveClient(data);
     },
     onMutate: async ({ data }) => {
-      // Cancel any outgoing refetches to avoid overwriting our optimistic update
+      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: clientKeys.lists() });
 
-      // Snapshot the previous value
-      const previousClients = queryClient.getQueryData(clientKeys.lists());
+      // Snapshot the previous value - specifically for page 1
+      const previousClients = queryClient.getQueryData(
+        clientKeys.list({ page: 1, pageSize: 10 })
+      );
 
-      // Optimistically update the cache
+      // Always update the first page for optimistic updates - this is where
+      // new records should appear regardless of the current page in the URL
       queryClient.setQueryData(
         clientKeys.list({ page: 1, pageSize: 10 }),
         (old: ClientsResponse | null | undefined) => {
@@ -81,7 +96,10 @@ export function useOptimisticClientMutation() {
 
           return {
             ...old,
-            clients: [data, ...(old.clients || [])],
+            clients: [data, ...(old.clients || [])].slice(
+              0,
+              old.clients.length
+            ),
             total: (old.total || 0) + 1,
           };
         }
@@ -92,12 +110,14 @@ export function useOptimisticClientMutation() {
     onError: (_err, _variables, context) => {
       // If the mutation fails, restore from snapshot
       if (context?.previousClients) {
-        queryClient.setQueryData(clientKeys.lists(), context.previousClients);
+        queryClient.setQueryData(
+          clientKeys.list({ page: 1, pageSize: 10 }),
+          context.previousClients
+        );
       }
-      // toaster to show error
     },
     onSettled: () => {
-      // Always refetch after error or success to make sure cache is in sync
+      // Always refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: clientKeys.lists() });
     },
   });

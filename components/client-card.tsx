@@ -2,16 +2,37 @@
 
 import { Mail, Phone, User } from "lucide-react";
 import { useClients } from "@/hooks/useClientsQuery";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 import { SelectClient } from "@/db/schema";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClientCardProps = SelectClient;
 
 export const ClientCard = () => {
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Get page from URL or default to 1
+  const pageParam = searchParams.get("page");
+  const page = pageParam ? parseInt(pageParam, 10) : 1;
   const pageSize = 2;
+
+  // Update URL when page changes
+  const createQueryString = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(name, value);
+    return params.toString();
+  };
+
+  // Navigate to a specific page
+  const goToPage = (pageNumber: number) => {
+    router.push(
+      `${pathname}?${createQueryString("page", pageNumber.toString())}`
+    );
+  };
 
   // Use the enhanced client query hook with prefetching
   const { data, isLoading, isPending, error, prefetchAdjacentPages } =
@@ -83,7 +104,7 @@ export const ClientCard = () => {
 
       <div className="flex justify-between items-center mt-4">
         <Button
-          onClick={() => setPage((page) => Math.max(1, page - 1))}
+          onClick={() => goToPage(Math.max(1, page - 1))}
           disabled={page === 1 || isPending}
         >
           Anterior
@@ -92,10 +113,7 @@ export const ClientCard = () => {
           Página {page} de {totalPages || 1}
         </span>
         <Button
-          onClick={() => {
-            const nextPage = Math.min(totalPages || 1, page + 1);
-            setPage(nextPage);
-          }}
+          onClick={() => goToPage(Math.min(totalPages || 1, page + 1))}
           disabled={page === (totalPages || 1) || isPending}
         >
           Próxima
