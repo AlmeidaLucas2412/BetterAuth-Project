@@ -3,6 +3,8 @@
 import { saveUser } from "@/actions/user";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const UserForm = () => {
   const [data, setData] = useState({
@@ -14,17 +16,31 @@ export const UserForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
 
-    await saveUser(data).finally(() => {
+    const { success, error } = await saveUser(data);
+
+    if (success) {
       setIsLoading(false);
-      location.reload();
-    });
+      toast.success("Usuário cadastrado com sucesso!", {
+        duration: 2000,
+      });
+      router.replace("/welcome");
+    } else {
+      setIsLoading(false);
+      toast.error(error);
+    }
   };
 
   return (
-    <form className="flex flex-col gap-y-4 border p-6 rounded-md items-center">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-y-4 border p-6 rounded-md items-center"
+    >
       <span className="font-semibold tracking-tighter text-lg">
         Complete seu cadastro
       </span>
@@ -49,11 +65,7 @@ export const UserForm = () => {
         onChange={(e) => setData({ ...data, email: e.target.value })}
         className="p-4 border rounded-sm"
       />
-      <Button
-        className="w-full rounded-sm"
-        disabled={isLoading}
-        onClick={handleSubmit}
-      >
+      <Button className="w-full rounded-sm" disabled={isLoading} type="submit">
         {isLoading ? "Enviando..." : "Enviar"}
       </Button>
     </form>
