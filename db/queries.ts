@@ -3,10 +3,16 @@ import db from ".";
 import { clients, InsertClient, InsertUser, users } from "./schema";
 
 export const upsertUser = async (userData: InsertUser) => {
-  await db.insert(users).values(userData).onConflictDoUpdate({
-    target: users.id,
-    set: userData,
-  });
+  const [{ id }] = await db
+    .insert(users)
+    .values(userData)
+    .onConflictDoUpdate({
+      target: users.id,
+      set: userData,
+    })
+    .returning({ id: users.id });
+
+  return id;
 };
 
 export const upsertClient = async (clientData: InsertClient) => {
