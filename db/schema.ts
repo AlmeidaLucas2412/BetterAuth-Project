@@ -30,6 +30,8 @@ export const clients = pgTable("clients", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export type InsertClient = typeof clients.$inferInsert;
