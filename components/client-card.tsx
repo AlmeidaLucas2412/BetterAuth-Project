@@ -51,23 +51,25 @@ export const ClientCard = () => {
         </div>
       ))}
 
-      <div className="flex justify-between items-center mt-4">
-        <Button
-          onClick={() => setPage((page) => Math.max(1, page - 1))}
-          disabled={page === 1}
-        >
-          Anterior
-        </Button>
-        <span>
-          Página {page} de {totalPages}
-        </span>
-        <Button
-          onClick={() => setPage((page) => Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-        >
-          Próxima
-        </Button>
-      </div>
+      {data.clients.length > 0 && (
+        <div className="flex justify-between items-center mt-4">
+          <Button
+            onClick={() => setPage((page) => Math.max(1, page - 1))}
+            disabled={page === 1}
+          >
+            Anterior
+          </Button>
+          <span>
+            Página {page} de {totalPages}
+          </span>
+          <Button
+            onClick={() => setPage((page) => Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+          >
+            Próxima
+          </Button>
+        </div>
+      )}
     </>
   );
 };
