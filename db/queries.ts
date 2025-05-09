@@ -1,6 +1,12 @@
 import { and, count, eq, ilike } from "drizzle-orm";
 import db from ".";
-import { clients, InsertClient, InsertUser, users } from "./schema";
+import {
+  clients,
+  InsertClient,
+  InsertUser,
+  SelectClient,
+  users,
+} from "./schema";
 
 export const upsertUser = async (userData: InsertUser) => {
   const [{ id }] = await db
@@ -15,11 +21,23 @@ export const upsertUser = async (userData: InsertUser) => {
   return id;
 };
 
-export const upsertClient = async (clientData: InsertClient) => {
-  await db.insert(clients).values(clientData).onConflictDoUpdate({
-    target: clients.email,
-    set: clientData,
-  });
+export const upsertClient = async (
+  clientData: InsertClient
+): Promise<SelectClient> => {
+  const result = await db
+    .insert(clients)
+    .values(clientData)
+    .onConflictDoUpdate({
+      target: clients.email,
+      set: clientData,
+    })
+    .returning();
+
+  if (!result || result.length === 0) {
+    throw new Error("Falha ao inserir ou atualizar cliente");
+  }
+
+  return result[0];
 };
 
 export const getClientsByUserId = async (
@@ -28,6 +46,7 @@ export const getClientsByUserId = async (
   pageSize = 10,
   name?: string
 ) => {
+  const cacheKey = `clients:${userId}:${page}:${pageSize}:${name || ""}`;
   const result = await db.query.clients.findMany({
     orderBy: (client, { asc }) => asc(client.name),
     limit: pageSize,
@@ -49,5 +68,6 @@ export const getClientsByUserId = async (
   return {
     clients: result ?? [],
     total: total[0].count ?? 0,
+    cacheKey,
   };
 };
