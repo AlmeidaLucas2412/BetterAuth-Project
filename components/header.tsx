@@ -35,8 +35,8 @@ export const Header = () => {
     }
   };
   return (
-    <header className="flex justify-between bg-transparent p-4 items-center">
-      <div className="flex items-center gap-x-2 p-2 rounded-md hover:bg-foreground hover:text-background">
+    <header className="flex items-center justify-between p-4 bg-transparent">
+      <div className="flex items-center p-2 rounded-md gap-x-2 hover:bg-foreground hover:text-background">
         <Avatar className="size-10">
           <AvatarImage src={imageUrl || ""} alt="Profile picture" />
           <AvatarFallback>
@@ -49,7 +49,7 @@ export const Header = () => {
       </div>
       <Button
         onClick={handleSignOut}
-        className="flex gap-x-2 p-6"
+        className="flex p-6 gap-x-2"
         disabled={isLoading}
         variant="ghost"
       >

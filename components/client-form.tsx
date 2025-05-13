@@ -74,7 +74,7 @@ export const ClientForm = ({ userId }: Props) => {
           </DialogHeader>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-y-4 rounded-md"
+            className="flex flex-col rounded-md gap-y-4"
           >
             <input
               type="text"
@@ -102,7 +102,7 @@ export const ClientForm = ({ userId }: Props) => {
             />
             <Button
               type="submit"
-              className="rounded-sm p-6"
+              className="p-6 rounded-sm"
               disabled={mutation.isPending}
             >
               {mutation.isPending ? "Enviando..." : "Enviar"}
@@ -112,7 +112,7 @@ export const ClientForm = ({ userId }: Props) => {
       </Dialog>
       <Button
         onClick={() => setIsOpen(true)}
-        className="uppercase font-semibold flex gap-x-1 self-start"
+        className="flex self-start font-semibold uppercase gap-x-1"
       >
         Adicionar Cliente
         <Plus />

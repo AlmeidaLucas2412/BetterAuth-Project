@@ -39,9 +39,9 @@ export const UserForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-y-4 border p-6 rounded-md items-center"
+      className="flex flex-col items-center p-6 border rounded-md gap-y-4"
     >
-      <span className="font-semibold tracking-tighter text-lg">
+      <span className="text-lg font-semibold tracking-tighter">
         Complete seu cadastro
       </span>
       <input
