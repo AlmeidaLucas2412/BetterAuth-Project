@@ -6,11 +6,10 @@ import { Skeleton } from "./ui/skeleton";
 import { SelectClient } from "@/db/schema";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useClients } from "@/hooks/useClientsQuery";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 type ClientCardProps = SelectClient;
 
-//TODO: Avoid the user to navigate to a page that does not exist.
 export const ClientCard = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -20,11 +19,14 @@ export const ClientCard = () => {
   const page = pageParams ? parseInt(pageParams) : 1;
   const pageSize = 2;
 
-  const createQueryString = (name: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(name, value);
-    return params.toString();
-  };
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
 
   const goToPage = (pageNumber: number) => {
     router.push(
@@ -35,9 +37,17 @@ export const ClientCard = () => {
   const { data, isLoading, isPending, error, prefetchAdjacentPages } =
     useClients(page, pageSize);
 
+  const totalPages = Math.ceil((data?.total ?? 0) / pageSize);
+
   useEffect(() => {
     prefetchAdjacentPages();
   }, [page, prefetchAdjacentPages]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      router.replace(`${pathname}?${createQueryString("page", "1")}`);
+    }
+  }, [createQueryString, page, pathname, router, totalPages]);
 
   if (isLoading)
     return (
@@ -57,14 +67,12 @@ export const ClientCard = () => {
 
   if (!data || !data.clients) return null;
 
-  const totalPages = Math.ceil(data.total / pageSize);
-
   return (
     <>
       <div className="relative">
         {isPending && (
-          <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center">
-            <Skeleton className="h-10 w-10 rounded-full bg-gray-500/20" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
+            <Skeleton className="w-10 h-10 rounded-full bg-gray-500/20" />
           </div>
         )}
       </div>
@@ -74,15 +82,15 @@ export const ClientCard = () => {
           className="flex flex-col p-4 border border-foreground gap-y-2"
           key={client.email}
         >
-          <div className="border border-background flex gap-x-4 p-2 items-center">
+          <div className="flex items-center p-2 border border-background gap-x-4">
             <User />
             <span>{client.name}</span>
           </div>
-          <div className="border border-background flex gap-x-4 p-2 items-center">
+          <div className="flex items-center p-2 border border-background gap-x-4">
             <Mail />
             <span>{client.email}</span>
           </div>
-          <div className="border border-background flex gap-x-4 p-2 items-center">
+          <div className="flex items-center p-2 border border-background gap-x-4">
             <Phone />
             <span>{client.phone}</span>
           </div>
@@ -90,7 +98,7 @@ export const ClientCard = () => {
       ))}
 
       {data.clients.length > 0 && (
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center justify-between mt-4">
           <Button
             onClick={() => goToPage(Math.max(1, page - 1))}
             disabled={page === 1 || isPending}
