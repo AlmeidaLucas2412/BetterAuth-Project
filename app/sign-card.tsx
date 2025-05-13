@@ -13,23 +13,24 @@ export const SignCard = () => {
       await customSignIn();
     } catch (error) {
       console.error(error);
-    } finally {
       setIsLoading(false);
     }
   };
   return (
-    <div className="flex flex-col items-center justify-center glassmorphism text-foreground p-6 rounded-sm shadow-lg shadow-blue-950 gap-y-4">
-      <span className="text-xl font-semibold">Better Auth</span>
-      <div className="flex gap-x-2 items-center">
+    <div className="flex flex-col items-center justify-center p-12 rounded-sm text-foreground custom-shadow gap-y-4">
+      <span className="text-xl font-light tracking-widest uppercase">
+        Better Auth
+      </span>
+      <div className="flex items-center gap-x-2">
         <Button
-          className="flex gap-x-2 p-6 font-bold"
+          className="flex p-6 font-light transition-colors duration-300 bg-transparent border gap-x-2 text-foreground hover:bg-foreground hover:text-background"
           onClick={handleSign}
           disabled={isLoading}
         >
           {isLoading ? (
-            <Loader className="size-6 animate-spin" />
+            <Loader className="size-6 animate-spin" strokeWidth={1} />
           ) : (
-            <Github className="size-8" />
+            <Github className="size-8" strokeWidth={1} />
           )}
           Sign In with Github
         </Button>
