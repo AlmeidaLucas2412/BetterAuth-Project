@@ -124,3 +124,7 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.custom-shadow {
+  box-shadow: 15px 15px 10px rgb(25, 25, 25), -15px -15px 10px rgb(60, 60, 60);
+}
